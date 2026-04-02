@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Game | Game Info</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a class="brand" href="../index.html">Game <span>Info</span></a>
+            <nav class="nav-links" aria-label="Primary navigation">
+                <a href="the-game.html">The Game</a>
+                <a href="highlights.html">Highlights</a>
+                <a href="plans.html">Plans</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero section" id="game">
+            <div class="container hero-grid">
+                <div>
+                    <p class="eyebrow">The Game</p>
+                    <h1>Build a world worth getting lost in.</h1>
+                    <p class="lead">
+                        This game blends fast combat, exploration, and progression. The core idea is to create
+                        an experience where every level teaches a new mechanic and rewards mastery.
+                    </p>
+                    <div class="actions">
+                        <a class="btn btn-primary" href="plans.html">See Development Plans</a>
+                        <a class="btn btn-outline" href="contact.html">Follow Updates</a>
+                    </div>
+                </div>
+                <aside class="hero-card" aria-label="Project status">
+                    <h2>Current Build</h2>
+                    <p class="build-tag">Pre-Alpha 0.3</p>
+                    <ul>
+                        <li>Core movement and combat loop playable</li>
+                        <li>First enemy faction implemented</li>
+                        <li>Save system in active development</li>
+                    </ul>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; <span id="year"></span> Game Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const yearEl = document.getElementById('year');
+        if (yearEl) {
+            yearEl.textContent = new Date().getFullYear();
+        }
+    </script>
+</body>
+</html>

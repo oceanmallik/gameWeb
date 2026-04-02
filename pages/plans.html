@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plans | Game Info</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a class="brand" href="../index.html">Game <span>Info</span></a>
+            <nav class="nav-links" aria-label="Primary navigation">
+                <a href="the-game.html">The Game</a>
+                <a href="highlights.html">Highlights</a>
+                <a href="plans.html">Plans</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="section" id="plans">
+            <div class="container">
+                <h2>Development Plans</h2>
+                <p class="plans-help">Add markdown files in the plans folder and include <strong>Serial: 003</strong> and <strong>Status: done|in-progress|next</strong> to control order and label.</p>
+                <div id="plans-list" class="timeline">
+                    <div class="timeline-item">
+                        <p class="phase">Loading</p>
+                        <p>Reading markdown plans...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; <span id="year"></span> Game Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const yearEl = document.getElementById('year');
+        if (yearEl) {
+            yearEl.textContent = new Date().getFullYear();
+        }
+
+        const plansListEl = document.getElementById('plans-list');
+        const plansDir = '../plans/';
+        const plansIndexFile = '../plans/index.json';
+        let indexedPlanOrder = [];
+
+        function serialFromFilename(filename) {
+            const match = filename.match(/^(\d+)[-_]/);
+            return match ? Number.parseInt(match[1], 10) : Number.MAX_SAFE_INTEGER;
+        }
+
+        function serialFromMarkdown(markdownText) {
+            const match = markdownText.match(/(?:^|\n)\s*Serial\s*:\s*(\d+)\s*(?:\n|$)/i);
+            return match ? Number.parseInt(match[1], 10) : null;
+        }
+
+        function statusFromMarkdown(markdownText) {
+            const match = markdownText.match(/(?:^|\n)\s*Status\s*:\s*([a-zA-Z- ]+)\s*(?:\n|$)/i);
+            if (!match) {
+                return null;
+            }
+
+            const rawStatus = match[1].trim().toLowerCase();
+            const normalized = rawStatus.replace(/\s+/g, '-');
+
+            if (normalized === 'done') {
+                return { statusClass: 'state-done', label: 'Done' };
+            }
+
+            if (normalized === 'in-progress' || normalized === 'active') {
+                return { statusClass: 'state-active', label: 'In Progress' };
+            }
+
+            if (normalized === 'next' || normalized === 'planned') {
+                return { statusClass: 'state-next', label: 'Next' };
+            }
+
+            return null;
+        }
+
+        function stripMetadataLines(markdownText) {
+            return markdownText
+                .replace(/^(\s*Serial\s*:\s*\d+\s*)$/gim, '')
+                .replace(/^(\s*Status\s*:\s*[a-zA-Z- ]+\s*)$/gim, '')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        function titleFromMarkdown(markdownText, filename) {
+            const headingMatch = markdownText.match(/^#\s+(.+)$/m);
+            if (headingMatch) {
+                return headingMatch[1].trim();
+            }
+
+            return filename
+                .replace(/^\d+[-_]?/, '')
+                .replace(/\.md$/i, '')
+                .replace(/[-_]+/g, ' ')
+                .replace(/\b\w/g, (char) => char.toUpperCase());
+        }
+
+        async function discoverPlanFiles() {
+            const discovered = new Set();
+
+            try {
+                const response = await fetch(plansIndexFile, { cache: 'no-store' });
+                if (response.ok) {
+                    const fileList = await response.json();
+                    if (Array.isArray(fileList)) {
+                        indexedPlanOrder = fileList
+                            .filter((fileName) => typeof fileName === 'string' && fileName.toLowerCase().endsWith('.md'));
+
+                        indexedPlanOrder.forEach((fileName) => discovered.add(fileName));
+                    }
+                }
+            } catch (error) {
+                console.warn('Unable to read index file order.', error);
+            }
+
+            try {
+                const response = await fetch(plansDir, { cache: 'no-store' });
+                if (response.ok) {
+                    const html = await response.text();
+                    const regex = /href=["']([^"']+\.md)["']/gi;
+                    let match;
+
+                    while ((match = regex.exec(html)) !== null) {
+                        const fileName = match[1].split('/').pop();
+                        if (fileName) {
+                            discovered.add(fileName);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('Directory listing is unavailable.', error);
+            }
+
+            return [...discovered].filter((fileName) => fileName.toLowerCase().endsWith('.md'));
+        }
+
+        async function renderPlans() {
+            const files = await discoverPlanFiles();
+
+            if (!files.length) {
+                plansListEl.innerHTML = `
+                    <div class="timeline-item">
+                        <p class="phase">No Plans Found</p>
+                        <p>Add markdown files in <strong>plans</strong>, for example: <strong>001-vertical-slice.md</strong>.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const entries = await Promise.all(files.map(async (fileName) => {
+                const response = await fetch(`${plansDir}${encodeURIComponent(fileName)}`, { cache: 'no-store' });
+                if (!response.ok) {
+                    return null;
+                }
+
+                const markdownText = await response.text();
+                const serialFromFile = serialFromFilename(fileName);
+                const serialFromBody = serialFromMarkdown(markdownText);
+                const serial = Number.isFinite(serialFromBody) ? serialFromBody : serialFromFile;
+                const status = statusFromMarkdown(markdownText) || { statusClass: 'state-next', label: 'Next' };
+                const title = titleFromMarkdown(markdownText, fileName);
+                const cleanMarkdown = stripMetadataLines(markdownText);
+                const rendered = window.marked ? window.marked.parse(cleanMarkdown) : `<pre>${cleanMarkdown}</pre>`;
+
+                return {
+                    fileName,
+                    serial,
+                    status,
+                    title,
+                    rendered
+                };
+            }));
+
+            const validEntries = entries
+                .filter((entry) => entry !== null)
+                .sort((first, second) => {
+                    const firstIndex = indexedPlanOrder.indexOf(first.fileName);
+                    const secondIndex = indexedPlanOrder.indexOf(second.fileName);
+
+                    const firstInIndex = firstIndex !== -1;
+                    const secondInIndex = secondIndex !== -1;
+
+                    if (firstInIndex && secondInIndex) {
+                        return firstIndex - secondIndex;
+                    }
+
+                    if (firstInIndex) {
+                        return -1;
+                    }
+
+                    if (secondInIndex) {
+                        return 1;
+                    }
+
+                    const serialDelta = first.serial - second.serial;
+                    if (serialDelta !== 0) {
+                        return serialDelta;
+                    }
+                    return first.fileName.localeCompare(second.fileName);
+                });
+
+            plansListEl.innerHTML = validEntries.map((entry) => {
+                return `
+                <article class="timeline-item ${entry.status.statusClass}">
+                    <div class="plan-phase-row">
+                        <span class="status-light" aria-hidden="true"></span>
+                        <p class="phase">${entry.status.label}</p>
+                    </div>
+                    <p class="plan-serial">Plan ${Number.isFinite(entry.serial) ? entry.serial : 'Unnumbered'}</p>
+                    <h3>${entry.title}</h3>
+                    <div class="plan-md">${entry.rendered}</div>
+                    <p class="plan-expand-hint" aria-hidden="true">Tap to see more</p>
+                </article>
+            `;
+            }).join('');
+
+            const planItems = plansListEl.querySelectorAll('.timeline-item');
+            planItems.forEach((item) => {
+                const contentEl = item.querySelector('.plan-md');
+                const hintEl = item.querySelector('.plan-expand-hint');
+
+                if (!contentEl) {
+                    return;
+                }
+
+                const canExpand = contentEl.scrollHeight > contentEl.clientHeight + 8;
+
+                if (!canExpand) {
+                    if (hintEl) {
+                        hintEl.textContent = '';
+                    }
+                    return;
+                }
+
+                item.classList.add('is-collapsible');
+                item.setAttribute('tabindex', '0');
+                item.setAttribute('role', 'button');
+                item.setAttribute('aria-expanded', 'false');
+
+                const toggleExpand = () => {
+                    const isExpanded = item.classList.toggle('expanded');
+                    item.setAttribute('aria-expanded', String(isExpanded));
+                    if (hintEl) {
+                        hintEl.textContent = isExpanded ? 'Tap to collapse' : 'Tap to see more';
+                    }
+                };
+
+                item.addEventListener('click', toggleExpand);
+                item.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        toggleExpand();
+                    }
+                });
+            });
+        }
+
+        renderPlans();
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | Game Info</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a class="brand" href="../index.html">Game <span>Info</span></a>
+            <nav class="nav-links" aria-label="Primary navigation">
+                <a href="the-game.html">The Game</a>
+                <a href="highlights.html">Highlights</a>
+                <a href="plans.html">Plans</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="section alt" id="contact">
+            <div class="container contact-wrap">
+                <h2>Stay in the Loop</h2>
+                <p>I post development updates and future plans as milestones are completed.</p>
+                <a class="btn btn-primary" href="mailto:hello@example.com">Contact Me</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; <span id="year"></span> Game Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const yearEl = document.getElementById('year');
+        if (yearEl) {
+            yearEl.textContent = new Date().getFullYear();
+        }
+    </script>
+</body>
+</html>
