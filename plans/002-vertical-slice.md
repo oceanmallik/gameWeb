@@ -1,7 +1,7 @@
 # Vertical Slice
 
 Serial: 002
-Status: in-progress
+Status: cancelled
 
 This milestone focuses on delivering one polished gameplay segment from start to finish.
 

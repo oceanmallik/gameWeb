@@ -87,6 +87,10 @@
                 return { statusClass: 'state-next', label: 'Next' };
             }
 
+            if (normalized === 'cancelled') {
+                return { statusClass: 'state-cancelled', label: 'Cancelled' };
+            }
+
             return null;
         }
 
@@ -331,7 +335,8 @@
             const colors = {
                 'state-done': '#22c55e',
                 'state-active': '#ffd400',
-                'state-next': '#a7a1d1'
+                'state-next': '#60a5fa',
+                'state-cancelled': '#ef4444'
             };
 
             // Draw connecting lines
