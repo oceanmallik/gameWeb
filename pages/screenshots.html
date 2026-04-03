@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshots | Game Info</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a class="brand" href="../index.html">Game <span>Info</span></a>
+            <nav class="nav-links" aria-label="Primary navigation">
+                <a href="screenshots.html">Screenshots</a>
+                <a href="plans.html">Plans</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="section" id="screenshots">
+            <div class="container">
+                <h2>Screenshots</h2>
+                <p class="screenshots-help">Add image files to the <strong>screenshots</strong> folder, then add entries in <strong>screenshots/index.json</strong> with <strong>title</strong> and <strong>file</strong>.</p>
+                <div id="screenshots-list" class="screenshot-grid">
+                    <article class="screenshot-card">
+                        <div class="screenshot-caption">
+                            <p>Loading screenshots...</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; <span id="year"></span> Game Info. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const yearEl = document.getElementById('year');
+        if (yearEl) {
+            yearEl.textContent = new Date().getFullYear();
+        }
+
+        const screenshotsIndexFile = '../screenshots/index.json';
+        const screenshotsDir = '../screenshots/';
+        const screenshotsListEl = document.getElementById('screenshots-list');
+
+        function titleFromFilename(fileName) {
+            return fileName
+                .replace(/\.[^/.]+$/, '')
+                .replace(/[-_]+/g, ' ')
+                .replace(/\b\w/g, (char) => char.toUpperCase());
+        }
+
+        function normalizeEntries(payload) {
+            const rawEntries = Array.isArray(payload)
+                ? payload
+                : (payload && Array.isArray(payload.screenshots) ? payload.screenshots : []);
+
+            return rawEntries
+                .map((entry) => {
+                    if (typeof entry === 'string') {
+                        return { file: entry, title: titleFromFilename(entry) };
+                    }
+
+                    if (!entry || typeof entry !== 'object') {
+                        return null;
+                    }
+
+                    const file = typeof entry.file === 'string' ? entry.file.trim() : '';
+                    const title = typeof entry.title === 'string' && entry.title.trim()
+                        ? entry.title.trim()
+                        : titleFromFilename(file);
+
+                    if (!file) {
+                        return null;
+                    }
+
+                    return { file, title };
+                })
+                .filter((entry) => entry !== null)
+                .filter((entry) => /\.(png|jpe?g|webp|gif|avif)$/i.test(entry.file));
+        }
+
+            function escapeHtml(value) {
+                return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+            }
+
+        async function renderScreenshots() {
+            try {
+                const response = await fetch(screenshotsIndexFile, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error('Could not read screenshots/index.json');
+                }
+
+                const payload = await response.json();
+                const entries = normalizeEntries(payload);
+
+                if (!entries.length) {
+                    screenshotsListEl.innerHTML = `
+                        <article class="screenshot-card">
+                            <div class="screenshot-caption">
+                                <h3 class="screenshot-title">No Screenshots Yet</h3>
+                                <p>Add entries in <strong>screenshots/index.json</strong> to publish your images with titles.</p>
+                            </div>
+                        </article>
+                    `;
+                    return;
+                }
+
+                screenshotsListEl.innerHTML = entries.map((entry) => {
+                    const imageUrl = `${screenshotsDir}${encodeURIComponent(entry.file)}`;
+                    const safeTitle = escapeHtml(entry.title);
+                    return `
+                        <article class="screenshot-card">
+                            <a class="screenshot-link" href="${imageUrl}" target="_blank" rel="noopener noreferrer">
+                                <img class="screenshot-thumb" src="${imageUrl}" alt="${safeTitle}" loading="lazy">
+                            </a>
+                            <div class="screenshot-caption">
+                                <h3 class="screenshot-title">${safeTitle}</h3>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error(error);
+                screenshotsListEl.innerHTML = `
+                    <article class="screenshot-card">
+                        <div class="screenshot-caption">
+                            <h3 class="screenshot-title">Unable to Load Screenshots</h3>
+                            <p>Make sure <strong>screenshots/index.json</strong> exists and contains valid JSON.</p>
+                        </div>
+                    </article>
+                `;
+            }
+        }
+
+        renderScreenshots();
+    </script>
+</body>
+</html>
