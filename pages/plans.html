@@ -371,7 +371,11 @@
             });
         }
 
+        // Initial render
         renderPlans();
+
+        // Auto-update every 3 seconds to detect new plans
+        setInterval(renderPlans, 3000);
     </script>
 </body>
 </html>
