@@ -406,13 +406,6 @@ h2 {
     line-height: 1;
 }
 
-.plan-serial {
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    margin-top: 4px;
-    margin-bottom: 8px;
-}
-
 .status-light {
     width: 10px;
     height: 10px;
