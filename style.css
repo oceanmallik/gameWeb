@@ -539,9 +539,50 @@ h2 {
     margin-bottom: 18px;
 }
 
+.contact-grid {
+    display: flex;
+    gap: 60px;
+    align-items: center;
+    justify-content: center;
+}
+
+#contact {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+}
+
+#contact .container {
+    width: 100%;
+}
+
+.contact-column {
+    padding: 0;
+    flex: 1;
+    max-width: 380px;
+}
+
+.contact-column h2 {
+    text-align: left;
+    margin-bottom: 16px;
+    font-size: 1.8rem;
+}
+
+.contact-column p {
+    text-align: left;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.7;
+}
+
+.contact-column .btn {
+    width: 100%;
+}
+
 .site-footer {
     padding: 30px 0;
-    border-top: 1px solid var(--border-color);
     color: var(--text-muted);
     text-align: center;
     font-size: 0.9rem;
@@ -554,6 +595,16 @@ h2 {
 
     .card-grid {
         grid-template-columns: 1fr;
+    }
+
+    .contact-grid {
+        flex-direction: column;
+        min-height: auto;
+        gap: 40px;
+    }
+
+    .contact-column {
+        max-width: 100%;
     }
 
     .section {
