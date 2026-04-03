@@ -350,6 +350,8 @@ h2 {
     color: var(--text-muted);
     text-align: center;
     margin: -8px auto 20px;
+    font-size: 0.875rem;
+    opacity: 0.7;
 }
 
 .screenshots-help {
@@ -361,7 +363,7 @@ h2 {
 
 .screenshot-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 18px;
 }
 
@@ -461,9 +463,10 @@ h2 {
 .plan-md {
     margin-top: 10px;
     color: var(--text-main);
-    max-height: 170px;
+    max-height: 90px;
     overflow: hidden;
     position: relative;
+    transition: max-height 0.3s ease;
 }
 
 .timeline-item.expanded .plan-md {
@@ -529,6 +532,26 @@ h2 {
     font-weight: 700;
 }
 
+.plan-collapse-btn {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: var(--primary-color);
+    color: var(--bg-main);
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: var(--transition);
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.plan-collapse-btn:hover {
+    background: var(--primary-hover);
+}
+
 .contact-wrap {
     text-align: center;
     max-width: 740px;
@@ -588,6 +611,32 @@ h2 {
     font-size: 0.9rem;
 }
 
+.plans-wrapper {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.plans-graph-container {
+    flex: 0 0 60px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0;
+    min-width: 60px;
+}
+
+#plans-graph-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 400px;
+}
+
+.timeline {
+    flex: 1;
+}
+
 @media (max-width: 900px) {
     .hero-grid {
         grid-template-columns: 1fr;
@@ -629,5 +678,14 @@ h2 {
 
     .hero-home {
         padding: 24px 0 40px;
+    }
+
+    .plans-wrapper {
+        flex-direction: column;
+    }
+
+    .plans-graph-container {
+        min-width: 100%;
+        margin-bottom: 20px;
     }
 }

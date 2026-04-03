@@ -24,11 +24,15 @@
         <section class="section" id="plans">
             <div class="container">
                 <h2>Development Plans</h2>
-                <p class="plans-help">Add markdown files in the plans folder and include <strong>Serial: 003</strong> and <strong>Status: done|in-progress|next</strong> to control order and label.</p>
-                <div id="plans-list" class="timeline">
-                    <div class="timeline-item">
-                        <p class="phase">Loading</p>
-                        <p>Reading markdown plans...</p>
+                <div class="plans-wrapper">
+                    <div id="plans-graph" class="plans-graph-container">
+                        <canvas id="plans-graph-canvas"></canvas>
+                    </div>
+                    <div id="plans-list" class="timeline">
+                        <div class="timeline-item">
+                            <p class="phase">Loading</p>
+                            <p>Reading markdown plans...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -222,6 +226,7 @@
                     <h3>${entry.title}</h3>
                     <div class="plan-md">${entry.rendered}</div>
                     <p class="plan-expand-hint" aria-hidden="true">Tap to see more</p>
+                    <button class="plan-collapse-btn" style="display: none;">Collapse</button>
                 </article>
             `;
             }).join('');
@@ -230,6 +235,7 @@
             planItems.forEach((item) => {
                 const contentEl = item.querySelector('.plan-md');
                 const hintEl = item.querySelector('.plan-expand-hint');
+                const collapseBtn = item.querySelector('.plan-collapse-btn');
 
                 if (!contentEl) {
                     return;
@@ -240,6 +246,9 @@
                 if (!canExpand) {
                     if (hintEl) {
                         hintEl.textContent = '';
+                    }
+                    if (collapseBtn) {
+                        collapseBtn.style.display = 'none';
                     }
                     return;
                 }
@@ -253,17 +262,112 @@
                     const isExpanded = item.classList.toggle('expanded');
                     item.setAttribute('aria-expanded', String(isExpanded));
                     if (hintEl) {
-                        hintEl.textContent = isExpanded ? 'Tap to collapse' : 'Tap to see more';
+                        hintEl.style.display = isExpanded ? 'none' : 'block';
                     }
+                    if (collapseBtn) {
+                        collapseBtn.style.display = isExpanded ? 'block' : 'none';
+                    }
+                    // Redraw graph after expansion animation completes
+                    setTimeout(() => {
+                        renderGraph(validEntries);
+                    }, 300);
                 };
 
-                item.addEventListener('click', toggleExpand);
+                item.addEventListener('click', (event) => {
+                    if (event.target === collapseBtn) {
+                        toggleExpand();
+                        event.stopPropagation();
+                    } else if (!item.classList.contains('expanded')) {
+                        toggleExpand();
+                    }
+                });
+
                 item.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
+                    if ((event.key === 'Enter' || event.key === ' ') && !item.classList.contains('expanded')) {
                         event.preventDefault();
                         toggleExpand();
                     }
                 });
+            });
+
+            renderGraph(validEntries);
+        }
+
+        function renderGraph(entries) {
+            const canvas = document.getElementById('plans-graph-canvas');
+            const timelineEl = document.getElementById('plans-list');
+            if (!canvas || !timelineEl) return;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            // Get the actual timeline items to calculate their positions
+            const timelineItems = timelineEl.querySelectorAll('.timeline-item');
+            const itemPositions = [];
+            
+            timelineItems.forEach((item) => {
+                const rect = item.getBoundingClientRect();
+                const timelineRect = timelineEl.getBoundingClientRect();
+                const relativeTop = rect.top - timelineRect.top;
+                const centerY = relativeTop + rect.height / 2;
+                itemPositions.push(centerY);
+            });
+
+            // Set canvas dimensions - much narrower
+            canvas.width = 60;
+            if (itemPositions.length > 0) {
+                canvas.height = Math.max(400, itemPositions[itemPositions.length - 1] + 50);
+            } else {
+                canvas.height = 400;
+            }
+
+            // Set background
+            ctx.fillStyle = 'transparent';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const dotRadius = 8;
+            const lineWidth = 2;
+
+            const colors = {
+                'state-done': '#22c55e',
+                'state-active': '#ffd400',
+                'state-next': '#a7a1d1'
+            };
+
+            // Draw connecting lines
+            ctx.strokeStyle = '#3a2a66';
+            ctx.lineWidth = lineWidth;
+            for (let i = 0; i < itemPositions.length - 1; i++) {
+                const y1 = itemPositions[i];
+                const y2 = itemPositions[i + 1];
+                ctx.beginPath();
+                ctx.moveTo(centerX, y1);
+                ctx.lineTo(centerX, y2);
+                ctx.stroke();
+            }
+
+            // Draw dots
+            entries.forEach((entry, index) => {
+                if (index >= itemPositions.length) return;
+                
+                const y = itemPositions[index];
+                const color = colors[entry.status.statusClass] || '#a7a1d1';
+
+                // Draw dot
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(centerX, y, dotRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw outer ring for active status
+                if (entry.status.statusClass === 'state-active') {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(centerX, y, dotRadius + 4, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
             });
         }
 
