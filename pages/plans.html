@@ -55,6 +55,7 @@
         const plansDir = '../plans/';
         const plansIndexFile = '../plans/index.json';
         let indexedPlanOrder = [];
+        const expandedPlanFiles = new Set();
 
         function serialFromFilename(filename) {
             const match = filename.match(/^(\d+)[-_]/);
@@ -221,7 +222,7 @@
 
             plansListEl.innerHTML = validEntries.map((entry) => {
                 return `
-                <article class="timeline-item ${entry.status.statusClass}">
+                <article class="timeline-item ${entry.status.statusClass}" data-plan-file="${entry.fileName}">
                     <div class="plan-phase-row">
                         <span class="status-light" aria-hidden="true"></span>
                         <p class="phase">${entry.status.label}</p>
@@ -236,6 +237,7 @@
 
             const planItems = plansListEl.querySelectorAll('.timeline-item');
             planItems.forEach((item) => {
+                const planFile = item.dataset.planFile;
                 const contentEl = item.querySelector('.plan-md');
                 const hintEl = item.querySelector('.plan-expand-hint');
                 const collapseBtn = item.querySelector('.plan-collapse-btn');
@@ -247,6 +249,9 @@
                 const canExpand = contentEl.scrollHeight > contentEl.clientHeight + 8;
 
                 if (!canExpand) {
+                    if (planFile) {
+                        expandedPlanFiles.delete(planFile);
+                    }
                     if (hintEl) {
                         hintEl.textContent = '';
                     }
@@ -259,11 +264,26 @@
                 item.classList.add('is-collapsible');
                 item.setAttribute('tabindex', '0');
                 item.setAttribute('role', 'button');
-                item.setAttribute('aria-expanded', 'false');
+                const shouldStartExpanded = Boolean(planFile && expandedPlanFiles.has(planFile));
+                item.classList.toggle('expanded', shouldStartExpanded);
+                item.setAttribute('aria-expanded', String(shouldStartExpanded));
+                if (hintEl) {
+                    hintEl.style.display = shouldStartExpanded ? 'none' : 'block';
+                }
+                if (collapseBtn) {
+                    collapseBtn.style.display = shouldStartExpanded ? 'block' : 'none';
+                }
 
                 const toggleExpand = () => {
                     const isExpanded = item.classList.toggle('expanded');
                     item.setAttribute('aria-expanded', String(isExpanded));
+                    if (planFile) {
+                        if (isExpanded) {
+                            expandedPlanFiles.add(planFile);
+                        } else {
+                            expandedPlanFiles.delete(planFile);
+                        }
+                    }
                     if (hintEl) {
                         hintEl.style.display = isExpanded ? 'none' : 'block';
                     }
