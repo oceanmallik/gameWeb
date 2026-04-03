@@ -1,4 +1,4 @@
-# gameInfo
+# Game information hosting site
 A website that hosts my game development stuff
 
 ## Plans Status System
