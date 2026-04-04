@@ -1,7 +1,7 @@
 # Core Narrative Implementation
 
 Serial: 003
-Status: in-progress
+Status: planned
 
 ## Overview
 Implement the main narrative framework and story progression mechanics for REMIN.
