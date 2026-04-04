@@ -10,4 +10,4 @@ The plans system supports 4 different status types:
 3. **next** (or **planned**) - Upcoming milestones
 4. **cancelled** - Cancelled or abandoned milestones
 
-To set a plan's status, add a `Status: <status>` field in the plan markdown file's metadata (at the top after the Serial field).
+Happy REMINING
