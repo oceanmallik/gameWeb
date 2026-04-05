@@ -1,18 +1,12 @@
-# Prototype Foundation
+# Prototype Foundation for REMIN
 
 Serial: 001
 Status: done
 
-The first milestone confirms that the project has a playable base.
+The first milestone is to make a basic standing prototype
 
-## Completed
+## Things that got added
 
-- Player movement and camera controls are stable.
-- Basic combat interactions are implemented.
-- One small playable zone is connected end-to-end.
-
-## Next Focus
-
-- Expand encounter variety.
-- Add save and load flow.
-- Start UI polish for player feedback. 
+- Player movement. 
+- Camera control. 
+- Test playground to test different stuff. 
