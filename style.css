@@ -465,14 +465,6 @@ h2 {
 .plan-md {
     margin-top: 10px;
     color: var(--text-main);
-    max-height: 90px;
-    overflow: hidden;
-    position: relative;
-    transition: max-height 0.3s ease;
-}
-
-.timeline-item.expanded .plan-md {
-    max-height: 1200px;
 }
 
 .plan-md h1,
@@ -496,62 +488,6 @@ h2 {
 .plan-md ul,
 .plan-md ol {
     padding-left: 20px;
-}
-
-.plan-md::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 56px;
-    background: linear-gradient(to bottom, rgba(26, 16, 51, 0), rgba(26, 16, 51, 1));
-    pointer-events: none;
-}
-
-.timeline-item.expanded .plan-md::after {
-    display: none;
-}
-
-.timeline-item.is-collapsible {
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.timeline-item.is-collapsible:hover {
-    border-color: color-mix(in srgb, var(--primary-color) 45%, var(--border-color));
-}
-
-.timeline-item.is-collapsible:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-}
-
-.plan-expand-hint {
-    margin-top: 12px;
-    color: var(--primary-color);
-    font-size: 0.82rem;
-    font-weight: 700;
-}
-
-.plan-collapse-btn {
-    margin-top: 12px;
-    padding: 8px 16px;
-    background: var(--primary-color);
-    color: var(--bg-main);
-    border: none;
-    border-radius: var(--radius);
-    font-weight: 600;
-    font-size: 0.82rem;
-    cursor: pointer;
-    transition: var(--transition);
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-}
-
-.plan-collapse-btn:hover {
-    background: var(--primary-hover);
 }
 
 .contact-wrap {

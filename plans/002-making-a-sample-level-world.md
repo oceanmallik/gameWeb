@@ -1,4 +1,4 @@
-# Prototype Foundation for REMIN
+# Making a simple puzzle
 
 Serial: 002
 Status: next

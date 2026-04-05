@@ -55,7 +55,6 @@
         const plansDir = '../plans/';
         const plansIndexFile = '../plans/index.json';
         let indexedPlanOrder = [];
-        const expandedPlanFiles = new Set();
 
         function serialFromFilename(filename) {
             const match = filename.match(/^(\d+)[-_]/);
@@ -229,89 +228,9 @@
                     </div>
                     <h3>${entry.title}</h3>
                     <div class="plan-md">${entry.rendered}</div>
-                    <p class="plan-expand-hint" aria-hidden="true">Tap to see more</p>
-                    <button class="plan-collapse-btn" style="display: none;">Collapse</button>
                 </article>
             `;
             }).join('');
-
-            const planItems = plansListEl.querySelectorAll('.timeline-item');
-            planItems.forEach((item) => {
-                const planFile = item.dataset.planFile;
-                const contentEl = item.querySelector('.plan-md');
-                const hintEl = item.querySelector('.plan-expand-hint');
-                const collapseBtn = item.querySelector('.plan-collapse-btn');
-
-                if (!contentEl) {
-                    return;
-                }
-
-                const canExpand = contentEl.scrollHeight > contentEl.clientHeight + 8;
-
-                if (!canExpand) {
-                    if (planFile) {
-                        expandedPlanFiles.delete(planFile);
-                    }
-                    if (hintEl) {
-                        hintEl.textContent = '';
-                    }
-                    if (collapseBtn) {
-                        collapseBtn.style.display = 'none';
-                    }
-                    return;
-                }
-
-                item.classList.add('is-collapsible');
-                item.setAttribute('tabindex', '0');
-                item.setAttribute('role', 'button');
-                const shouldStartExpanded = Boolean(planFile && expandedPlanFiles.has(planFile));
-                item.classList.toggle('expanded', shouldStartExpanded);
-                item.setAttribute('aria-expanded', String(shouldStartExpanded));
-                if (hintEl) {
-                    hintEl.style.display = shouldStartExpanded ? 'none' : 'block';
-                }
-                if (collapseBtn) {
-                    collapseBtn.style.display = shouldStartExpanded ? 'block' : 'none';
-                }
-
-                const toggleExpand = () => {
-                    const isExpanded = item.classList.toggle('expanded');
-                    item.setAttribute('aria-expanded', String(isExpanded));
-                    if (planFile) {
-                        if (isExpanded) {
-                            expandedPlanFiles.add(planFile);
-                        } else {
-                            expandedPlanFiles.delete(planFile);
-                        }
-                    }
-                    if (hintEl) {
-                        hintEl.style.display = isExpanded ? 'none' : 'block';
-                    }
-                    if (collapseBtn) {
-                        collapseBtn.style.display = isExpanded ? 'block' : 'none';
-                    }
-                    // Redraw graph after expansion animation completes
-                    setTimeout(() => {
-                        renderGraph(validEntries);
-                    }, 300);
-                };
-
-                item.addEventListener('click', (event) => {
-                    if (event.target === collapseBtn) {
-                        toggleExpand();
-                        event.stopPropagation();
-                    } else if (!item.classList.contains('expanded')) {
-                        toggleExpand();
-                    }
-                });
-
-                item.addEventListener('keydown', (event) => {
-                    if ((event.key === 'Enter' || event.key === ' ') && !item.classList.contains('expanded')) {
-                        event.preventDefault();
-                        toggleExpand();
-                    }
-                });
-            });
 
             renderGraph(validEntries);
         }
