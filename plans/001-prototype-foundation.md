@@ -5,6 +5,8 @@ Status: done
 
 The first milestone is to make a basic standing prototype
 
+![Prototype foundation screenshot](../screenshots/001.png)
+
 ## Things that got added
 
 - Player movement. 

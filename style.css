@@ -485,6 +485,14 @@ h2 {
     color: var(--text-muted);
 }
 
+.plan-md img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 12px 0 0;
+    border-radius: 12px;
+}
+
 .plan-md ul,
 .plan-md ol {
     padding-left: 20px;
