@@ -1,12 +1,11 @@
-# Making a simple puzzle
+# Making a basic character with animations
 
 Serial: 002
 Status: next
 
-Making a basic puzzle level
+Making a basic character
 
 ## Things that I may add
 
-- A basic puzzle
-- Some enviornment for testing
-- darken vibe
+- A 3D character, REMIN actually
+- Add animation to it, or atleast the concept of it
