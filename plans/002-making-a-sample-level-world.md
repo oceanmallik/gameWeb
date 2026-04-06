@@ -5,7 +5,7 @@ Status: next
 
 Making a basic puzzle level
 
-## Things that will get added
+## Things that I may add
 
 - A basic puzzle
 - Some enviornment for testing
