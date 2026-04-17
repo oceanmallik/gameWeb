@@ -10,4 +10,3 @@ The plans system supports 4 different status types:
 3. **next** (or **planned**) - Upcoming milestones
 4. **cancelled** - Cancelled or abandoned milestones
 
-REMINING... Aloning in silencing... 
